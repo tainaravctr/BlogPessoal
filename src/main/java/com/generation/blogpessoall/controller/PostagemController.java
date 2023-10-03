@@ -21,11 +21,13 @@ import com.generation.blogpessoall.model.Postagem;
 import com.generation.blogpessoall.repository.PostagemRepository;
 import com.generation.blogpessoall.repository.TemaRepository;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 
 @RestController
 @RequestMapping("/postagens")
+@Tag(name = "BlogPessoal", description = "Apis for Blog Pessoal on Generation")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PostagemController {
 

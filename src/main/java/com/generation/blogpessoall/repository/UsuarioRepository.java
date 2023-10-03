@@ -1,17 +1,25 @@
 package com.generation.blogpessoall.repository;
 
+
+
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Component;
 import com.generation.blogpessoall.model.Usuario;
 
-public interface UsuarioRepository {
+
+@Component
+public interface UsuarioRepository extends JpaRepository<Usuario, Long>  {
 
 	Optional<Usuario> findByUsuario(String userName);
 
-	Optional<Usuario> findById(Long id);
 
-	Object save(Usuario usuario);
+	<S> S save(Usuario usuario);
 
-	Object findAll();
+	List<Usuario> findAll();
+
+	Object findById(Usuario usuario);
 
 }

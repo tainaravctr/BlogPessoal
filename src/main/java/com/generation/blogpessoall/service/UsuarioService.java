@@ -37,7 +37,7 @@ public class UsuarioService {
 
 		usuario.setSenha(criptografarSenha(usuario.getSenha()));
 
-		return Optional.of(usuarioRepository.save(usuario));
+		return Optional.of(usuarioRepository.findById(usuario));
 	
 	}
 
@@ -52,7 +52,7 @@ public class UsuarioService {
 
 			usuario.setSenha(criptografarSenha(usuario.getSenha()));
 
-			return Optional.ofNullable(usuarioRepository.save(usuario));
+			return Optional.ofNullable(usuarioRepository.findById(usuario));
 			
 		}
 
@@ -107,9 +107,5 @@ public class UsuarioService {
 		return "Bearer " + jwtService.generateToken(usuario);
 	}
 
-	public Optional<Usuario> atualizarUsuario1(@Valid Usuario usuario) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }
