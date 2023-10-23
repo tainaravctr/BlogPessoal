@@ -1,4 +1,5 @@
-package com.generation.blogpessoall.controller;
+﻿package com.generation.blogpessoall.controller;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -21,78 +22,70 @@ import com.generation.blogpessoall.model.Postagem;
 import com.generation.blogpessoall.repository.PostagemRepository;
 import com.generation.blogpessoall.repository.TemaRepository;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
 
 @RestController
 @RequestMapping("/postagens")
-@Tag(name = "BlogPessoal", description = "Apis for Blog Pessoal on Generation")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PostagemController {
-
+	
 	@Autowired
 	private PostagemRepository postagemRepository;
 	
-	
 	@Autowired
 	private TemaRepository temaRepository;
-	
 	
 	@GetMapping
 	public ResponseEntity<List<Postagem>> getAll(){
 		return ResponseEntity.ok(postagemRepository.findAll());
 	}
-	
-	
-	
+
 	@GetMapping("/{id}")
-	public ResponseEntity<Postagem> getById(@PathVariable Long id) {
-	   return postagemRepository.findById(id)
-	       .map(resposta -> ResponseEntity.ok(resposta))
-	         .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-	    }
+	public ResponseEntity<Postagem> getById(@PathVariable Long id){
+		return postagemRepository.findById(id)
+				.map(resp -> ResponseEntity.ok(resp))
+				.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+	}
 	
-	
-	
-	 @GetMapping("/titulo/{titulo}")
-	    public ResponseEntity<List<Postagem>> getByTitulo(@PathVariable String titulo) {
-	        return ResponseEntity.ok(postagemRepository.findAllByTituloContainingIgnoreCase(titulo));
-	    }
-	 
-	 
-	 
-	 @PutMapping
-	 public ResponseEntity<Postagem> put1 (@Valid @RequestBody Postagem postagem){
-		 return postagemRepository.findById(postagem.getId())
-				 .map(resposta -> ResponseEntity.status(HttpStatus.OK)
-				  .body(postagemRepository.save(postagem)))
-				   .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-	 }
-	 
-	 
-	 
-	 @DeleteMapping("/{id}")
-	    public void delete1( @PathVariable Long id) {
-	        Optional<Postagem> postagem = postagemRepository.findById(id);
+	@GetMapping("/titulo/{titulo}")
+	public ResponseEntity<List<Postagem>> getByTitulo(@PathVariable String titulo){
+		return ResponseEntity.ok(postagemRepository.findAllByTituloContainingIgnoreCase(titulo));
+	}
 
-	        if (postagem.isEmpty()) {
-	            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-	        }
-	        postagemRepository.deleteById(id);
-	    }
-	 
-	 
-	 
-	 @PostMapping
-	 public ResponseEntity<Postagem> post (@Valid @RequestBody Postagem postagem){
-		 if (temaRepository.existsById(postagem.getTema().getId()))
-		 return ResponseEntity.status(HttpStatus.CREATED)
-				 .body(postagemRepository.save(postagem));
-		 
-		 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tema não existe!", null);
+	@PostMapping
+	public ResponseEntity<Postagem> post(@Valid @RequestBody Postagem postagem){
+		if (temaRepository.existsById(postagem.getTema().getId()))
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.body(postagemRepository.save(postagem));
 			
-		}
-
-	  
+		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tema não existe!", null);
+	}
+	
+	@PutMapping
+	public ResponseEntity<Postagem> put(@Valid @RequestBody Postagem postagem){
+		if (postagemRepository.existsById(postagem.getId())){
+			
+			if (temaRepository.existsById(postagem.getTema().getId()))
+				return ResponseEntity.status(HttpStatus.OK)
+						.body(postagemRepository.save(postagem));
+			
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tema não existe!", null);
+			
+		}			
+			
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		
+	}
+	
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@DeleteMapping("/{id}")
+	public void delete(@PathVariable Long id) {
+		Optional<Postagem> postagem = postagemRepository.findById(id);
+		
+		if(postagem.isEmpty())
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		
+		postagemRepository.deleteById(id);				
+	}
+	
 }

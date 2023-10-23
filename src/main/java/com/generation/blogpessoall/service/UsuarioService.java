@@ -1,4 +1,4 @@
-package com.generation.blogpessoall.service;
+﻿package com.generation.blogpessoall.service;
 
 import java.util.Optional;
 
@@ -16,8 +16,6 @@ import com.generation.blogpessoall.model.Usuario;
 import com.generation.blogpessoall.repository.UsuarioRepository;
 import com.generation.blogpessoall.security.JwtService;
 
-import jakarta.validation.Valid;
-
 @Service
 public class UsuarioService {
 
@@ -30,18 +28,18 @@ public class UsuarioService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-	public Optional<Object> cadastrarUsuario(Usuario usuario) {
+	public Optional<Usuario> cadastrarUsuario(Usuario usuario) {
 
 		if (usuarioRepository.findByUsuario(usuario.getUsuario()).isPresent())
 			return Optional.empty();
 
 		usuario.setSenha(criptografarSenha(usuario.getSenha()));
 
-		return Optional.of(usuarioRepository.findById(usuario));
+		return Optional.of(usuarioRepository.save(usuario));
 	
 	}
 
-	public Optional<Object> atualizarUsuario(Usuario usuario) {
+	public Optional<Usuario> atualizarUsuario(Usuario usuario) {
 		
 		if(usuarioRepository.findById(usuario.getId()).isPresent()) {
 
@@ -52,7 +50,7 @@ public class UsuarioService {
 
 			usuario.setSenha(criptografarSenha(usuario.getSenha()));
 
-			return Optional.ofNullable(usuarioRepository.findById(usuario));
+			return Optional.ofNullable(usuarioRepository.save(usuario));
 			
 		}
 
@@ -62,30 +60,23 @@ public class UsuarioService {
 
 	public Optional<UsuarioLogin> autenticarUsuario(Optional<UsuarioLogin> usuarioLogin) {
         
-        // Gera o Objeto de autenticação
 		var credenciais = new UsernamePasswordAuthenticationToken(usuarioLogin.get().getUsuario(), usuarioLogin.get().getSenha());
 		
-        // Autentica o Usuario
 		Authentication authentication = authenticationManager.authenticate(credenciais);
         
-        // Se a autenticação foi efetuada com sucesso
 		if (authentication.isAuthenticated()) {
 
-            // Busca os dados do usuário
 			Optional<Usuario> usuario = usuarioRepository.findByUsuario(usuarioLogin.get().getUsuario());
 
-            // Se o usuário foi encontrado
 			if (usuario.isPresent()) {
 
-                // Preenche o Objeto usuarioLogin com os dados encontrados 
-			   usuarioLogin.get().setId(usuario.get().getId());
+				usuarioLogin.get().setId(usuario.get().getId());
                 usuarioLogin.get().setNome(usuario.get().getNome());
                 usuarioLogin.get().setFoto(usuario.get().getFoto());
                 usuarioLogin.get().setToken(gerarToken(usuarioLogin.get().getUsuario()));
                 usuarioLogin.get().setSenha("");
-				
-                 // Retorna o Objeto preenchido
-			   return usuarioLogin;
+								
+				return usuarioLogin;
 			
 			}
 
@@ -106,6 +97,5 @@ public class UsuarioService {
 	private String gerarToken(String usuario) {
 		return "Bearer " + jwtService.generateToken(usuario);
 	}
-
 
 }
